@@ -78,6 +78,29 @@ export const getAllDocumentMasters = async (req, res) => {
   }
 };
 
+// Admin: Get all submitted documents across vendors (with optional status filter)
+export const getAllSubmittedDocuments = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = {};
+    if (status && status !== "all") {
+      if (status === "pending") filter.verificationStatus = { $in: ["submitted", "pending"] };
+      else filter.verificationStatus = status;
+    }
+    const docs = await VendorDocument.find(filter)
+      .populate({
+        path: "vendorId",
+        select: "brandName userId",
+        populate: { path: "userId", select: "name email phone" },
+      })
+      .populate("documentId", "documentName documentCode documentType isRequired")
+      .sort("-createdAt");
+    res.json({ success: true, data: docs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // Admin: Get vendor's documents for review
 export const getVendorDocumentsAdmin = async (req, res) => {
   try {

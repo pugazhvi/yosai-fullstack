@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import {
   LayoutDashboard, Users, Package, ShoppingBag, Percent, Banknote,
-  Headphones, Tag, FileText, LogOut, Shield, Bell,
+  Headphones, Tag, FileText, LogOut, Shield, Bell, FolderTree,
   Home, Menu, X,
 } from "lucide-react";
 
@@ -13,13 +13,15 @@ const navItems = [
   { to: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/admin/vendors", icon: Users, label: "Vendors" },
   { to: "/admin/products", icon: Package, label: "Products" },
+  { to: "/admin/categories", icon: FolderTree, label: "Categories" },
   { to: "/admin/orders", icon: ShoppingBag, label: "Orders" },
   { to: "/admin/users", icon: Users, label: "Users" },
   { to: "/admin/commissions", icon: Percent, label: "Commissions" },
   { to: "/admin/payouts", icon: Banknote, label: "Payouts" },
   { to: "/admin/coupons", icon: Tag, label: "Coupons" },
   { to: "/admin/support", icon: Headphones, label: "Support" },
-  { to: "/admin/documents", icon: FileText, label: "Documents" },
+  { to: "/admin/documents", icon: FileText, label: "Doc Types" },
+  { to: "/admin/document-review", icon: FileText, label: "Doc Review" },
 ];
 
 function NotificationBell() {

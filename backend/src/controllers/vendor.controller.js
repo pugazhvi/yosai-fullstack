@@ -39,14 +39,10 @@ export const updateVendorProfile = async (req, res) => {
   }
 };
 
+// Deprecated: use POST /documents/submit instead (DocumentMaster + VendorDocument flow)
 export const uploadDocument = async (req, res) => {
-  try {
-    const { label, url } = req.body;
-    const vendor = await Vendor.findOne({ userId: req.user._id });
-    vendor.kyc.documents.push({ label, url, status: "pending" });
-    await vendor.save();
-    res.json({ success: true, data: vendor.kyc.documents });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+  res.status(410).json({
+    success: false,
+    message: "This endpoint is deprecated. Use POST /api/documents/submit instead.",
+  });
 };

@@ -15,6 +15,8 @@ export default function AddProduct() {
   const qc = useQueryClient();
   const { id } = useParams();
   const isEdit = !!id;
+  const [showNewCat, setShowNewCat] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
   const [form, setForm] = useState({
     name: "", description: "", category: "", images: [], videoUrl: "", featured: false,
     variants: [emptyVariant()],
@@ -97,6 +99,24 @@ export default function AddProduct() {
     });
   };
 
+  const createCatMut = useMutation({
+    mutationFn: (name) => api.post("/categories/request", { name }),
+    onSuccess: (res) => {
+      const newCat = res.data;
+      qc.invalidateQueries({ queryKey: ["categories"] });
+      setForm(f => ({ ...f, category: newCat._id }));
+      setNewCatName("");
+      setShowNewCat(false);
+      toast.success(`Category "${newCat.name}" added`);
+    },
+    onError: (err) => toast.error(err?.message || "Failed to create category"),
+  });
+
+  const handleCreateCategory = () => {
+    if (!newCatName.trim()) return;
+    createCatMut.mutate(newCatName.trim());
+  };
+
   const mutation = useMutation({
     mutationFn: (data) => isEdit ? api.put(`/products/${id}`, data) : api.post("/products", data),
     onSuccess: () => {
@@ -140,13 +160,41 @@ export default function AddProduct() {
             <input className="input" value={form.name} onChange={set("name")} placeholder="e.g. Classic Cotton T-Shirt" required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-            <select className="input" value={form.category} onChange={set("category")} required>
-              <option value="">Select Category</option>
-              {categories.map(c => (
-                <option key={c._id} value={c._id}>{c.name}</option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-gray-700">Category *</label>
+              <button
+                type="button"
+                onClick={() => setShowNewCat(v => !v)}
+                className="text-xs text-pink-600 hover:text-pink-700 font-medium flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" /> {showNewCat ? "Cancel" : "Create new"}
+              </button>
+            </div>
+            {showNewCat ? (
+              <div className="flex gap-2">
+                <input
+                  className="input flex-1"
+                  value={newCatName}
+                  onChange={e => setNewCatName(e.target.value)}
+                  placeholder="New category name"
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateCategory}
+                  disabled={createCatMut.isPending || !newCatName.trim()}
+                  className="btn-primary px-4 text-sm whitespace-nowrap"
+                >
+                  {createCatMut.isPending ? "Creating..." : "Add"}
+                </button>
+              </div>
+            ) : (
+              <select className="input" value={form.category} onChange={set("category")} required>
+                <option value="">Select Category</option>
+                {categories.map(c => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>

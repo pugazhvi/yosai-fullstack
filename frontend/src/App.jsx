@@ -52,6 +52,8 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminVendors from "@/pages/admin/Vendors";
 import VendorDetail from "@/pages/admin/VendorDetail";
 import AdminProducts from "@/pages/admin/Products";
+import AdminCategories from "@/pages/admin/Categories";
+import AdminDocumentReview from "@/pages/admin/DocumentReview";
 import AdminOrders from "@/pages/admin/Orders";
 import AdminCommissions from "@/pages/admin/Commissions";
 import AdminPayouts from "@/pages/admin/Payouts";
@@ -136,6 +138,7 @@ export default function App() {
         <Route path="vendors" element={<AdminVendors />} />
         <Route path="vendors/:id" element={<VendorDetail />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="categories" element={<AdminCategories />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="commissions" element={<AdminCommissions />} />
@@ -143,6 +146,7 @@ export default function App() {
         <Route path="coupons" element={<AdminCoupons />} />
         <Route path="support" element={<AdminSupportTickets />} />
         <Route path="documents" element={<AdminDocuments />} />
+        <Route path="document-review" element={<AdminDocumentReview />} />
       </Route>
     </Routes>
   );

@@ -139,34 +139,62 @@ export default function VendorDetail() {
         </div>
       </div>
 
-      {/* KYC Documents */}
-      {vendor.kyc?.documents?.length > 0 && (
-        <div className="card p-6">
-          <h2 className="font-bold text-gray-900 flex items-center gap-2 mb-4"><Package className="w-4 h-4 text-pink-600" /> Uploaded Documents</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {vendor.kyc.documents.map((doc, i) => {
-              const isImage = doc.url?.match(/\.(jpg|jpeg|png|gif|webp)/i) || doc.url?.includes("/image/");
-              const statusColors = { pending: "bg-yellow-100 text-yellow-700", approved: "bg-green-100 text-green-700", rejected: "bg-red-100 text-red-700" };
-              return (
-                <a key={i} href={doc.url} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors group">
-                  {isImage ? (
-                    <img src={doc.url} alt={doc.label} className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-200" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-5 h-5 text-pink-500" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate capitalize group-hover:text-blue-600">{doc.label || `Document ${i + 1}`}</p>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full capitalize ${statusColors[doc.status] || "bg-gray-100 text-gray-600"}`}>{doc.status || "pending"}</span>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      <VendorSubmittedDocs vendorId={vendor._id} />
+    </div>
+  );
+}
+
+function VendorSubmittedDocs({ vendorId }) {
+  const { data } = useQuery({
+    queryKey: ["vendor-docs", vendorId],
+    queryFn: async () => {
+      const res = await api.get(`/documents/vendor/${vendorId}`);
+      return res.data || [];
+    },
+    enabled: !!vendorId,
+  });
+
+  const docs = data || [];
+  if (docs.length === 0) return null;
+
+  const statusColors = {
+    submitted: "bg-blue-100 text-blue-700",
+    pending: "bg-yellow-100 text-yellow-700",
+    verified: "bg-green-100 text-green-700",
+    approved: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+  };
+
+  return (
+    <div className="card p-6">
+      <h2 className="font-bold text-gray-900 flex items-center gap-2 mb-4">
+        <FileText className="w-4 h-4 text-pink-600" /> Submitted Documents
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {docs.map((d) => {
+          const isImage = d.fileUrl?.match(/\.(jpg|jpeg|png|gif|webp)/i) || d.fileUrl?.includes("/image/");
+          return (
+            <a key={d._id} href={d.fileUrl} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors group">
+              {isImage ? (
+                <img src={d.fileUrl} alt={d.documentId?.documentName} className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-200" />
+              ) : (
+                <div className="w-12 h-12 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-pink-500" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600">
+                  {d.documentId?.documentName || "Document"}
+                </p>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full capitalize ${statusColors[d.verificationStatus] || "bg-gray-100 text-gray-600"}`}>
+                  {d.verificationStatus}
+                </span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
     </div>
   );
 }
