@@ -34,13 +34,13 @@ export const CartProvider = ({ children }) => {
     } finally { setLoading(false); }
   };
 
-  const updateQuantity = async (productId, selectedSize, quantity) => {
-    const res = await api.put("/cart/update", { cartId: getCartId(), productId, selectedSize, quantity });
+  const updateQuantity = async (itemId, quantity) => {
+    const res = await api.put("/cart/update", { cartId: getCartId(), itemId, quantity });
     setCart(res.data);
   };
 
-  const removeItem = async (productId) => {
-    const res = await api.delete("/cart/remove", { data: { cartId: getCartId(), productId } });
+  const removeItem = async (itemId) => {
+    const res = await api.delete("/cart/remove", { data: { cartId: getCartId(), itemId } });
     setCart(res.data);
   };
 
@@ -72,7 +72,7 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const itemCount = cart.items?.length || 0;
-  const total = cart.items?.reduce((s, i) => s + (i.productId?.price || i.price || 0) * i.quantity, 0) || 0;
+  const total = cart.items?.reduce((s, i) => s + (i.price || i.productId?.variants?.[0]?.price || 0) * i.quantity, 0) || 0;
 
   return (
     <CartContext.Provider value={{ cart, loading, addToCart, updateQuantity, removeItem, clearCart, fetchCart, itemCount, total, isInCart, isSizeInCart, getQuantity }}>

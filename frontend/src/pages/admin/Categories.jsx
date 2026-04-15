@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { uploadToCloudinary } from "@/lib/upload";
 import toast from "react-hot-toast";
-import { Plus, Pencil, Trash2, X, FolderTree, Search, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, X, FolderTree, Search, Upload, Loader2 } from "lucide-react";
 
 const emptyForm = { name: "", description: "", image: "", icon: "", isActive: true, isFeatured: false, sortOrder: 0 };
 
@@ -14,6 +15,7 @@ export default function AdminCategories() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [search, setSearch] = useState("");
+  const [uploadingImg, setUploadingImg] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-categories"],
@@ -167,19 +169,35 @@ export default function AdminCategories() {
                     </button>
                   </div>
                 ) : (
-                  <label className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center cursor-pointer hover:border-pink-300 transition-colors">
-                    <Upload className="w-6 h-6 text-gray-300 mb-1.5" />
-                    <span className="text-xs text-gray-500">Click to upload image</span>
+                  <label className={`border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center transition-colors ${uploadingImg ? "opacity-60 cursor-wait" : "cursor-pointer hover:border-pink-300"}`}>
+                    {uploadingImg ? (
+                      <>
+                        <Loader2 className="w-6 h-6 text-pink-500 mb-1.5 animate-spin" />
+                        <span className="text-xs text-gray-500">Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-6 h-6 text-gray-300 mb-1.5" />
+                        <span className="text-xs text-gray-500">Click to upload image</span>
+                      </>
+                    )}
                     <input
                       type="file"
                       accept="image/*"
+                      disabled={uploadingImg}
                       className="hidden"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
-                        const reader = new FileReader();
-                        reader.onload = (ev) => setForm(f => ({ ...f, image: ev.target.result }));
-                        reader.readAsDataURL(file);
+                        setUploadingImg(true);
+                        try {
+                          const url = await uploadToCloudinary(file, "categories");
+                          setForm(f => ({ ...f, image: url }));
+                        } catch (err) {
+                          toast.error(err?.message || "Upload failed");
+                        } finally {
+                          setUploadingImg(false);
+                        }
                       }}
                     />
                   </label>

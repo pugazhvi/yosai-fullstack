@@ -6,7 +6,8 @@ import { FiShoppingCart, FiUser, FiMenu, FiX } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "./ui/sheet";
 import { Separator } from "./ui/separator";
-import { ShoppingBag, Phone, LogIn, LogOut, ListOrdered, Store, Bell, MapPin, Wallet, Edit, Headphones, ChevronDown, Truck, Shield, HeartHandshake } from "lucide-react";
+import { ShoppingBag, Phone, LogIn, LogOut, ListOrdered, Store, Bell, MapPin, Wallet, Edit, Headphones, ChevronDown, Truck, Shield, HeartHandshake, Heart } from "lucide-react";
+import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -140,6 +141,7 @@ export default function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const { user, logout, isVendor, isAdmin } = useAuth();
   const { itemCount } = useCart();
+  const { count: wishCount } = useWishlist();
   const location = useLocation();
   const isAuthenticated = !!user;
 
@@ -231,6 +233,16 @@ export default function NavBar() {
 
             {/* Desktop Actions */}
             <div className="hidden sm:flex items-center gap-1">
+              {/* Wishlist */}
+              <Link to="/wishlist" className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors" aria-label="Wishlist">
+                <Heart className="w-[18px] h-[18px] text-gray-700" />
+                {wishCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 w-4.5 h-4.5 min-w-[18px] bg-pink-600 text-white text-[9px] rounded-full flex items-center justify-center font-bold ring-2 ring-white">
+                    {wishCount}
+                  </span>
+                )}
+              </Link>
+
               {/* Cart */}
               <Link to="/cart" className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
                 <FiShoppingCart className="w-[18px] h-[18px] text-gray-700" />
@@ -266,6 +278,12 @@ export default function NavBar() {
                   <BsBox2Heart className="text-lg text-gray-700" />
                 </Link>
               )}
+              <Link to="/wishlist" className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors" aria-label="Wishlist">
+                <Heart className="w-[18px] h-[18px] text-gray-700" />
+                {wishCount > 0 && (
+                  <span className="absolute top-0 right-0 w-4 h-4 bg-pink-600 text-white text-[8px] rounded-full flex items-center justify-center font-bold ring-2 ring-white">{wishCount}</span>
+                )}
+              </Link>
               <Link to="/cart" className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
                 <FiShoppingCart className="text-lg text-gray-700" />
                 {itemCount > 0 && (

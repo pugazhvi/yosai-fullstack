@@ -12,19 +12,20 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function OrderDetail() {
-  const { id } = useParams();
+  const { orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!orderId) return;
     const fetchOrder = async () => {
       try {
-        const res = await api.get(`/orders/${id}`);
-        setOrder(res.order || res);
+        const res = await api.get(`/orders/my/${orderId}`);
+        setOrder(res.data || res.order || res);
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
     fetchOrder();
-  }, [id]);
+  }, [orderId]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader className="h-8 w-8 animate-spin text-pink-600" /></div>;
   if (!order) return <div className="min-h-screen flex items-center justify-center"><p className="text-gray-500">Order not found</p></div>;

@@ -25,8 +25,8 @@ export default function Orders() {
     if (!user) { navigate("/auth?redirect=/orders"); return; }
     const fetchOrders = async () => {
       try {
-        const res = await api.get("/orders");
-        const data = Array.isArray(res) ? res : res.orders || [];
+        const res = await api.get("/orders/my");
+        const data = Array.isArray(res) ? res : res.data || res.orders || [];
         setOrders(data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
@@ -35,7 +35,7 @@ export default function Orders() {
 
   const filteredOrders = orders.filter((order) => {
     const matchesFilter = filter === "all" || order.status?.toLowerCase() === filter;
-    const matchesSearch = !searchQuery || order._id?.toLowerCase().includes(searchQuery.toLowerCase()) || order.status?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = !searchQuery || order.orderId?.toLowerCase().includes(searchQuery.toLowerCase()) || order.status?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -71,7 +71,7 @@ export default function Orders() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Order ID</p>
-                    <p className="font-medium text-gray-900 text-sm">{order._id?.slice(0, 8)}...{order._id?.slice(-4)}</p>
+                    <p className="font-medium text-gray-900 text-sm">{order.orderId}</p>
                   </div>
                   <StatusBadge status={order.status || "Pending"} />
                 </div>
@@ -92,7 +92,7 @@ export default function Orders() {
                     <span className="text-sm text-gray-500">{order.items?.length || 0} item(s)</span>
                     <p className="font-semibold text-gray-900">Rs.{order.totalAmount?.toLocaleString()}</p>
                   </div>
-                  <Link to={`/orders/${order._id}`} className="flex items-center text-pink-600 hover:text-pink-700 font-medium text-sm">
+                  <Link to={`/orders/${order.orderId}`} className="flex items-center text-pink-600 hover:text-pink-700 font-medium text-sm">
                     View Details <ChevronRight className="h-4 w-4 ml-1" />
                   </Link>
                 </div>

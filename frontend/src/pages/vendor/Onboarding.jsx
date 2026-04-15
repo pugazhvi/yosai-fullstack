@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, User, Phone,
-  Building2, Upload, ChevronRight, ChevronLeft, FileText, X, Loader2,
+  Building2, Upload, ChevronRight, ChevronLeft, FileText, X, Loader2, Check,
 } from "lucide-react";
 
 // Convert File to base64 string
@@ -35,7 +35,8 @@ export default function VendorOnboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState(searchParams.get("signup") ? "signup" : "signin");
+  // Default to signup since this is the seller registration page
+  const [activeTab, setActiveTab] = useState(searchParams.get("signin") ? "signin" : "signup");
   const isSignup = activeTab === "signup";
 
   const [authForm, setAuthForm] = useState({ name: "", email: "", phone: "", password: "" });
@@ -214,65 +215,115 @@ export default function VendorOnboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-lg space-y-6"
-      >
-        {/* Header */}
-        <div className="text-center">
-          <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }} className="mx-auto flex justify-center">
-            <img className="h-14 w-auto" src="/logo.png" alt="Yosai" onError={(e) => { e.target.style.display = "none"; }} />
-          </motion.div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-3">Join our seller community</h1>
-          <p className="text-gray-500 text-sm mt-1">Create your seller account and start selling your products</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-purple-50 relative overflow-hidden flex items-center justify-center px-4 py-8">
+      {/* Decorative orbs */}
+      <div className="absolute -top-20 -left-20 w-96 h-96 bg-pink-300/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-20 w-[28rem] h-[28rem] bg-purple-300/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-72 h-72 bg-amber-200/20 rounded-full blur-3xl pointer-events-none" />
 
-        <Card className="border-0 shadow-lg">
+      <div className="relative z-10 w-full max-w-3xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full space-y-4"
+        >
+          {/* Header */}
+          <div className="text-center">
+            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }} className="mx-auto flex justify-center">
+              <img className="h-12 w-auto" src="/logo.png" alt="Yosai" onError={(e) => { e.target.style.display = "none"; }} />
+            </motion.div>
+            <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-pink-100 text-pink-700 text-[10px] font-bold uppercase tracking-wider">
+              <Building2 className="w-3 h-3" /> Seller Portal
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2 tracking-tight">
+              {isSignup ? "Become a Seller" : "Welcome Back, Seller"}
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">
+              {isSignup ? "Set up your store in minutes — zero fees, free forever" : "Sign in to continue your seller registration"}
+            </p>
+
+            {/* Customer redirect banner */}
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-xs text-gray-600 shadow-sm">
+              <span>Just want to shop?</span>
+              <button
+                type="button"
+                onClick={() => navigate("/auth")}
+                className="font-semibold text-pink-600 hover:text-pink-700 hover:underline"
+              >
+                Customer Sign In →
+              </button>
+            </div>
+          </div>
+
+        <Card className="border-0 shadow-2xl shadow-pink-500/10 bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden">
+          {/* Progress Stepper — only on signup flow */}
+          {isSignup && (
+            <div className="px-8 pt-6 pb-2">
+              <div className="flex items-center justify-between mb-2">
+                {["Account", "Store", "Bank & KYC", "Review"].map((label, i) => {
+                  const current = step === i;
+                  const done = step > i;
+                  return (
+                    <div key={i} className="flex-1 flex items-center">
+                      <div className="flex flex-col items-center flex-1">
+                        <motion.div
+                          animate={{ scale: current ? 1.1 : 1 }}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                            done ? "bg-green-500 text-white" : current ? "bg-gradient-to-br from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/40" : "bg-gray-100 text-gray-400"
+                          }`}
+                        >
+                          {done ? <Check className="w-4 h-4" /> : i + 1}
+                        </motion.div>
+                        <span className={`mt-1.5 text-[10px] font-medium hidden sm:block ${current ? "text-pink-600" : done ? "text-green-600" : "text-gray-400"}`}>{label}</span>
+                      </div>
+                      {i < 3 && <div className={`h-0.5 flex-1 -mt-5 transition-colors ${done ? "bg-green-500" : "bg-gray-200"}`} />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Step 0: Auth */}
           {step === 0 && (
             <>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 px-6 sm:px-8">
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="signin">Sign In</TabsTrigger>
-                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-2 bg-gray-100/80 rounded-xl p-1 h-11">
+                    <TabsTrigger value="signin" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign In</TabsTrigger>
+                    <TabsTrigger value="signup" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign Up</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </CardHeader>
-              <CardContent className="pt-4">
-                <form onSubmit={handleAuthSubmit} className="space-y-4">
+              <CardContent className="pt-6 px-6 sm:px-8 pb-8">
+                <form onSubmit={handleAuthSubmit} className="space-y-5">
                   <AnimatePresence mode="wait">
-                    <motion.div key={activeTab} initial={{ opacity: 0, x: isSignup ? 20 : -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-4">
+                    <motion.div key={activeTab} initial={{ opacity: 0, x: isSignup ? 20 : -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="space-y-5">
                       {isSignup && (
                         <>
-                          <div className="flex items-center gap-2 mb-4">
-                            <h3 className="font-semibold text-gray-900">Personal Information</h3>
-                            <span className="ml-auto text-xs text-gray-400">Step 1 of 4</span>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="name" className="flex items-center gap-1.5"><User className="h-3.5 w-3.5 text-gray-400" /> Full Name</Label>
-                            <Input id="name" placeholder="John Doe" value={authForm.name} onChange={setAuth("name")} required />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="email" className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-gray-400" /> Email Address</Label>
-                            <Input id="email" type="email" placeholder="your@email.com" value={authForm.email} onChange={setAuth("email")} required />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="phone" className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-gray-400" /> Phone Number</Label>
-                            <Input id="phone" placeholder="+91 9876543210" value={authForm.phone} onChange={setAuth("phone")} required />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="password" className="flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-gray-400" /> Password</Label>
-                            <div className="relative">
-                              <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={authForm.password} onChange={setAuth("password")} required />
-                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowPassword(!showPassword)}>
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                              </button>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                              <Label htmlFor="name" className="flex items-center gap-1.5 text-xs"><User className="h-3.5 w-3.5 text-gray-400" /> Full Name</Label>
+                              <Input id="name" placeholder="John Doe" value={authForm.name} onChange={setAuth("name")} required />
                             </div>
-                            <p className="text-xs text-gray-400">Password must be at least 8 characters long with a mix of letters, numbers, and symbols.</p>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="email" className="flex items-center gap-1.5 text-xs"><Mail className="h-3.5 w-3.5 text-gray-400" /> Email Address</Label>
+                              <Input id="email" type="email" placeholder="your@email.com" value={authForm.email} onChange={setAuth("email")} required />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="phone" className="flex items-center gap-1.5 text-xs"><Phone className="h-3.5 w-3.5 text-gray-400" /> Phone Number</Label>
+                              <Input id="phone" placeholder="+91 9876543210" value={authForm.phone} onChange={setAuth("phone")} required />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="password" className="flex items-center gap-1.5 text-xs"><Lock className="h-3.5 w-3.5 text-gray-400" /> Password</Label>
+                              <div className="relative">
+                                <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={authForm.password} onChange={setAuth("password")} required />
+                                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowPassword(!showPassword)}>
+                                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </>
                       )}
@@ -302,9 +353,23 @@ export default function VendorOnboarding() {
 
                   <AlertBlock error={error} success={success} />
 
-                  <Button type="submit" className="w-full bg-pink-600 hover:bg-pink-700" disabled={loading}>
-                    {loading ? "Processing..." : isSignup ? "Continue" : "Sign In & Continue"}
+                  <Button type="submit" className="w-full h-12 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 shadow-lg shadow-pink-500/30 text-base font-semibold rounded-xl transition-all hover:scale-[1.01]" disabled={loading}>
+                    {loading ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</>
+                    ) : isSignup ? (
+                      <>Continue to Store Setup <ChevronRight className="ml-1 h-4 w-4" /></>
+                    ) : (
+                      "Sign In & Continue"
+                    )}
                   </Button>
+
+                  {isSignup && (
+                    <div className="flex items-center justify-center gap-4 pt-2 text-[11px] text-gray-400">
+                      <span className="flex items-center gap-1"><Check className="w-3 h-3 text-green-500" /> No setup fees</span>
+                      <span className="flex items-center gap-1"><Check className="w-3 h-3 text-green-500" /> Secure signup</span>
+                      <span className="flex items-center gap-1"><Check className="w-3 h-3 text-green-500" /> Free forever</span>
+                    </div>
+                  )}
                 </form>
               </CardContent>
               <CardFooter className="flex justify-center border-t pt-4">
@@ -504,6 +569,7 @@ export default function VendorOnboarding() {
           )}
         </Card>
       </motion.div>
+      </div>
     </div>
   );
 }

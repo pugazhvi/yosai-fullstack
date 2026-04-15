@@ -11,6 +11,7 @@ import Home from "@/pages/customer/Home";
 import Products from "@/pages/customer/Products";
 import ProductDetail from "@/pages/customer/ProductDetail";
 import Cart from "@/pages/customer/Cart";
+import Wishlist from "@/pages/customer/Wishlist";
 import Checkout from "@/pages/customer/Checkout";
 import Orders from "@/pages/customer/Orders";
 import OrderDetail from "@/pages/customer/OrderDetail";
@@ -44,6 +45,7 @@ import VendorWallet from "@/pages/vendor/Wallet";
 import VendorAnalytics from "@/pages/vendor/Analytics";
 import VendorBankDetails from "@/pages/vendor/BankDetails";
 import VendorSupport from "@/pages/vendor/Support";
+import VendorSettings from "@/pages/vendor/Settings";
 import VendorDocuments from "@/pages/vendor/Documents";
 import VendorCoupons from "@/pages/vendor/Coupons";
 
@@ -86,6 +88,7 @@ export default function App() {
         <Route path="/readymades" element={<Products />} />
         <Route path="/viewproduct/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<ProtectedRoute customerOnly><Checkout /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute customerOnly><Orders /></ProtectedRoute>} />
         <Route path="/orders/:orderId" element={<ProtectedRoute customerOnly><OrderDetail /></ProtectedRoute>} />
@@ -129,6 +132,7 @@ export default function App() {
         <Route path="coupons" element={<VendorCoupons />} />
         <Route path="documents" element={<VendorDocuments />} />
         <Route path="support" element={<VendorSupport />} />
+        <Route path="settings" element={<VendorSettings />} />
       </Route>
 
       {/* Admin Panel */}

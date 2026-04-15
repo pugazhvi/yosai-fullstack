@@ -7,6 +7,9 @@ const NavigationBar = () => {
   const location = useLocation();
   const path = location.pathname;
 
+  // Hide bottom nav on checkout so the sticky pay bar has room
+  if (path === "/checkout") return null;
+
   const isHomeActive = path === "/";
   const isAccessoriesActive = path === "/readymades";
   const isBookServiceActive = path === "/stitch-service";

@@ -8,26 +8,29 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 
 const CartItem = ({ item, onIncrease, onDecrease, onRemove, loading }) => {
-  const product = item.productId || {};
-  const discount = product.mrp && product.price ? Math.round(((product.mrp - product.price) / product.mrp) * 100) : 0;
+  const name = item.name || item.productId?.name || "Product";
+  const image = item.image || item.productId?.images?.[0] || "/placeholder.svg";
+  const price = item.price || item.productId?.variants?.[0]?.price || 0;
+  const mrp = item.mrp || item.productId?.variants?.[0]?.mrp || 0;
+  const discount = mrp && price ? Math.round(((mrp - price) / mrp) * 100) : 0;
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           <div className="relative flex-shrink-0">
-            <img src={product.images?.[0] || "/placeholder.svg"} alt={product.name || "Product"} className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-md shadow-sm" loading="lazy" />
+            <img src={image} alt={name} className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-md shadow-sm" loading="lazy" />
             {discount > 0 && <Badge className="absolute -top-2 -left-2 bg-green-600">{discount}% OFF</Badge>}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex justify-between">
               <div>
-                <h3 className="font-medium text-base md:text-lg text-gray-900 line-clamp-2">{product.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{product.category}</p>
+                <h3 className="font-medium text-base md:text-lg text-gray-900 line-clamp-2">{name}</h3>
+                {item.selectedColor && <p className="text-sm text-gray-500 mt-1">Color: {item.selectedColor}</p>}
                 {item.selectedSize && <Badge variant="outline" className="mt-1">Size: {item.selectedSize}</Badge>}
               </div>
               <div className="text-right">
-                <span className="text-lg font-semibold text-gray-900">Rs.{product.price}</span>
-                {product.mrp > product.price && <div className="text-sm text-gray-500 line-through">Rs.{product.mrp}</div>}
+                <span className="text-lg font-semibold text-gray-900">Rs.{price.toLocaleString()}</span>
+                {mrp > price && <div className="text-sm text-gray-500 line-through">Rs.{mrp.toLocaleString()}</div>}
               </div>
             </div>
             <div className="flex justify-between items-center mt-4">
@@ -57,27 +60,27 @@ export default function Cart() {
   const navigate = useNavigate();
   const [loadingItems, setLoadingItems] = useState({});
   const items = cart.items || [];
-  const subtotal = items.reduce((s, item) => s + (item.productId?.price || 0) * item.quantity, 0);
+  const subtotal = items.reduce((s, item) => s + (item.price || item.productId?.variants?.[0]?.price || 0) * item.quantity, 0);
   const shipping = subtotal > 0 ? 100 : 0;
   const total = subtotal + shipping;
 
   const setLoad = (id, val) => setLoadingItems((prev) => ({ ...prev, [id]: val }));
 
   const handleIncrease = async (item) => {
-    const id = item.productId?._id || item.productId;
+    const id = item._id;
     setLoad(id, true);
-    try { await updateQuantity(id, item.selectedSize, item.quantity + 1); await fetchCart(); } finally { setLoad(id, false); }
+    try { await updateQuantity(id, item.quantity + 1); await fetchCart(); } finally { setLoad(id, false); }
   };
   const handleDecrease = async (item) => {
-    const id = item.productId?._id || item.productId;
+    const id = item._id;
     setLoad(id, true);
     try {
-      if (item.quantity <= 1) { await removeItem(id); } else { await updateQuantity(id, item.selectedSize, item.quantity - 1); }
+      if (item.quantity <= 1) { await removeItem(id); } else { await updateQuantity(id, item.quantity - 1); }
       await fetchCart();
     } finally { setLoad(id, false); }
   };
   const handleRemove = async (item) => {
-    const id = item.productId?._id || item.productId;
+    const id = item._id;
     setLoad(id, true);
     try { await removeItem(id); await fetchCart(); } finally { setLoad(id, false); }
   };

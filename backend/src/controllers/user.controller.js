@@ -1,5 +1,39 @@
 import User from "../models/User.js";
 
+// Wishlist
+export const getWishlist = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate({
+      path: "wishlist",
+      select: "name images variants category slug",
+      populate: { path: "category", select: "name" },
+    });
+    res.json({ success: true, data: user?.wishlist || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const addToWishlist = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    await User.updateOne({ _id: req.user._id }, { $addToSet: { wishlist: productId } });
+    res.json({ success: true, message: "Added to wishlist" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const removeFromWishlist = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    await User.updateOne({ _id: req.user._id }, { $pull: { wishlist: productId } });
+    res.json({ success: true, message: "Removed from wishlist" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 export const updateProfile = async (req, res) => {
   try {
     const { name, phone, avatar } = req.body;

@@ -1,7 +1,7 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import dotenv from "dotenv";
 import cron from "node-cron";
 import { connectDB } from "./config/db.js";
 
@@ -29,7 +29,6 @@ import uploadRoutes from "./routes/upload.routes.js";
 // Services
 import { checkDelayedOrders } from "./services/order.service.js";
 
-dotenv.config();
 connectDB();
 
 const app = express();

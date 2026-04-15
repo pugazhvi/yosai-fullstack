@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { uploadMultiple } from "@/lib/upload";
 import toast from "react-hot-toast";
-import { Plus, Trash2, Upload, Package } from "lucide-react";
+import { Plus, Trash2, Upload, Package, Loader2 } from "lucide-react";
 
 const COLORS = ["Black", "White", "Red", "Blue", "Green", "Yellow", "Pink", "Purple", "Grey", "Brown", "Navy", "Beige"];
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL", "Free Size"];
@@ -17,6 +18,7 @@ export default function AddProduct() {
   const isEdit = !!id;
   const [showNewCat, setShowNewCat] = useState(false);
   const [newCatName, setNewCatName] = useState("");
+  const [uploadingImgs, setUploadingImgs] = useState(false);
   const [form, setForm] = useState({
     name: "", description: "", category: "", images: [], videoUrl: "", featured: false,
     variants: [emptyVariant()],
@@ -90,13 +92,19 @@ export default function AddProduct() {
   const addVariant = () => setForm(f => ({ ...f, variants: [...f.variants, emptyVariant()] }));
   const removeVariant = (i) => setForm(f => ({ ...f, variants: f.variants.filter((_, idx) => idx !== i) }));
 
-  const handleImages = (e) => {
+  const handleImages = async (e) => {
     const files = Array.from(e.target.files);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (ev) => setForm(f => ({ ...f, images: [...f.images, ev.target.result] }));
-      reader.readAsDataURL(file);
-    });
+    if (files.length === 0) return;
+    setUploadingImgs(true);
+    try {
+      const urls = await uploadMultiple(files, "products");
+      setForm(f => ({ ...f, images: [...f.images, ...urls] }));
+    } catch (err) {
+      toast.error(err?.message || "Image upload failed");
+    } finally {
+      setUploadingImgs(false);
+      e.target.value = "";
+    }
   };
 
   const createCatMut = useMutation({
@@ -209,10 +217,19 @@ export default function AddProduct() {
         {/* Images */}
         <div className="card p-6">
           <h2 className="font-bold text-gray-900 flex items-center gap-2 mb-4"><Upload className="w-4 h-4 text-pink-600" /> Product Images</h2>
-          <label className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center cursor-pointer hover:border-pink-300 transition-colors">
-            <Upload className="w-8 h-8 text-gray-300 mb-2" />
-            <span className="text-sm text-gray-500">Click to upload images</span>
-            <input type="file" multiple accept="image/*" onChange={handleImages} className="hidden" />
+          <label className={`border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center transition-colors ${uploadingImgs ? "opacity-60 cursor-wait" : "cursor-pointer hover:border-pink-300"}`}>
+            {uploadingImgs ? (
+              <>
+                <Loader2 className="w-8 h-8 text-pink-500 mb-2 animate-spin" />
+                <span className="text-sm text-gray-500">Uploading to Cloudinary...</span>
+              </>
+            ) : (
+              <>
+                <Upload className="w-8 h-8 text-gray-300 mb-2" />
+                <span className="text-sm text-gray-500">Click to upload images</span>
+              </>
+            )}
+            <input type="file" multiple accept="image/*" onChange={handleImages} disabled={uploadingImgs} className="hidden" />
           </label>
           {form.images.length > 0 && (
             <div className="flex gap-2 mt-3 flex-wrap">

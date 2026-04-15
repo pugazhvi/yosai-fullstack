@@ -25,6 +25,7 @@ const UserSchema = new mongoose.Schema(
     authProvider: { type: String, enum: ["credentials", "google"], default: "credentials" },
     lastLogin: { type: Date },
     addresses: [AddressSchema],
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },
   { timestamps: true }
 );

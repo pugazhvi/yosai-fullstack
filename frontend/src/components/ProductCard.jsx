@@ -4,12 +4,15 @@ import { Star, Eye, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AddToCartTrash from "./AddToCartTrash";
 import AddToCartDialog from "./AddToCartDialog";
+import { useWishlist } from "@/context/WishlistContext";
 
 export default function ProductCard({ product, viewMode = "grid" }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const navigate = useNavigate();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const liked = isWishlisted(product?._id);
 
   const price = product?.variants?.[0]?.price || product?.price || 0;
   const mrp = product?.variants?.[0]?.mrp || product?.mrp || 0;
@@ -108,10 +111,11 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                     <Eye className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-gray-700" />
                   </button>
                   <button
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all"
+                    onClick={(e) => { e.stopPropagation(); toggleWishlist(product); }}
+                    className={`w-8 h-8 lg:w-9 lg:h-9 rounded-full backdrop-blur-sm flex items-center justify-center shadow-lg hover:scale-110 transition-all ${liked ? "bg-pink-600 hover:bg-pink-700" : "bg-white/90 hover:bg-white"}`}
+                    aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
                   >
-                    <Heart className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-gray-700" />
+                    <Heart className={`h-3.5 w-3.5 lg:h-4 lg:w-4 ${liked ? "text-white fill-white" : "text-gray-700"}`} />
                   </button>
                 </motion.div>
               )}

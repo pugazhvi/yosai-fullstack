@@ -102,6 +102,26 @@ export const getVendorDetail = async (req, res) => {
   }
 };
 
+export const verifyKycDocument = async (req, res) => {
+  try {
+    const { vendorId, docIndex } = req.params;
+    const { status } = req.body;
+    if (!["approved", "rejected", "pending"].includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status" });
+    }
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) return res.status(404).json({ success: false, message: "Vendor not found" });
+    if (!vendor.kyc?.documents?.[docIndex]) {
+      return res.status(404).json({ success: false, message: "Document not found" });
+    }
+    vendor.kyc.documents[docIndex].status = status;
+    await vendor.save();
+    res.json({ success: true, data: vendor.kyc.documents });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 export const updateVendorStatus = async (req, res) => {
   try {
     const { status, adminNote } = req.body;

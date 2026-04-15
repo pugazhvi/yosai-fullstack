@@ -46,19 +46,20 @@ export const splitAndCreateOrder = async (customerId, cartItems, paymentData, sh
     });
   }
 
+  const isCOD = paymentData?.method === "cod";
   const order = await Order.create({
     customerId,
     orderId,
     payment: {
       ...paymentData,
-      status: "paid",
-      paidAt: new Date(),
+      status: paymentData?.status || (isCOD ? "pending" : "paid"),
+      paidAt: isCOD ? null : new Date(),
     },
     shippingAddress,
     subOrders,
     totalAmount,
     totalMRP,
-    status: "confirmed",
+    status: isCOD ? "pending" : "confirmed",
   });
 
   // 3. Notify vendors

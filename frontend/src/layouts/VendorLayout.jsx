@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import {
   LayoutDashboard, Package, ShoppingBag, Wallet, BarChart3, Landmark,
-  Tag, FileText, Headphones, LogOut, Store, Bell, Home, Menu, X,
+  Tag, FileText, Headphones, LogOut, Store, Bell, Home, Menu, X, Settings,
 } from "lucide-react";
 
 const navItems = [
@@ -18,6 +18,7 @@ const navItems = [
   { to: "/vendor/coupons", icon: Tag, label: "Coupons" },
   { to: "/vendor/documents", icon: FileText, label: "Documents" },
   { to: "/vendor/support", icon: Headphones, label: "Support" },
+  { to: "/vendor/settings", icon: Settings, label: "Settings" },
 ];
 
 function NotificationBell() {

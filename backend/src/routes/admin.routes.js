@@ -7,6 +7,7 @@ import {
   getAllVendors,
   getVendorDetail,
   updateVendorStatus,
+  verifyKycDocument,
   getAllProducts,
   updateProductStatus,
   getCommissions,
@@ -33,6 +34,7 @@ router.patch("/users/:id/status", updateUserStatus);
 router.get("/vendors", getAllVendors);
 router.get("/vendors/:id", getVendorDetail);
 router.patch("/vendors/:id/status", updateVendorStatus);
+router.patch("/vendors/:vendorId/kyc-documents/:docIndex", verifyKycDocument);
 
 // Products
 router.get("/products", getAllProducts);

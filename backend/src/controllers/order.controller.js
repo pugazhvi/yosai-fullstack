@@ -39,13 +39,17 @@ export const createRazorpayOrder = async (req, res) => {
 
 export const verifyAndPlaceOrder = async (req, res) => {
   try {
-    const { razorpayOrderId, razorpayPaymentId, razorpaySignature, cartId, shippingAddress, walletAmount = 0 } = req.body;
+    const { razorpayOrderId, razorpayPaymentId, razorpaySignature, cartId, shippingAddress, walletAmount = 0, paymentMethod = "online" } = req.body;
 
-    // Verify Razorpay signature
-    const body = `${razorpayOrderId}|${razorpayPaymentId}`;
-    const expected = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "test").update(body).digest("hex");
-    if (razorpaySignature && expected !== razorpaySignature)
-      return res.status(400).json({ success: false, message: "Payment verification failed" });
+    const isCOD = paymentMethod === "cod";
+
+    // Verify Razorpay signature (skip for COD)
+    if (!isCOD) {
+      const body = `${razorpayOrderId}|${razorpayPaymentId}`;
+      const expected = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "test").update(body).digest("hex");
+      if (razorpaySignature && expected !== razorpaySignature)
+        return res.status(400).json({ success: false, message: "Payment verification failed" });
+    }
 
     const cart = await Cart.findOne({ cartId }).populate({ path: "items.productId", select: "name images vendorId" });
     if (!cart?.items?.length) return res.status(400).json({ success: false, message: "Cart is empty" });
@@ -67,7 +71,14 @@ export const verifyAndPlaceOrder = async (req, res) => {
     const order = await splitAndCreateOrder(
       req.user._id,
       cartItems,
-      { razorpayOrderId, razorpayPaymentId, razorpaySignature, amount: totalAmount - walletAmount },
+      {
+        razorpayOrderId: isCOD ? null : razorpayOrderId,
+        razorpayPaymentId: isCOD ? null : razorpayPaymentId,
+        razorpaySignature: isCOD ? null : razorpaySignature,
+        amount: totalAmount - walletAmount,
+        method: isCOD ? "cod" : "online",
+        status: isCOD ? "pending" : "paid",
+      },
       shippingAddress,
       walletAmount
     );
