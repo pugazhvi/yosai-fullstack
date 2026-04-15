@@ -300,100 +300,117 @@ export default function NavBar() {
 
       {/* Mobile Sheet Drawer */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent side="right">
-          <SheetHeader>
+        <SheetContent side="right" className="w-[85vw] max-w-sm p-0 flex flex-col">
+          <SheetHeader className="px-4 pt-4 pb-2 flex-shrink-0">
             <SheetTitle>
               <Link to="/" onClick={() => setIsOpen(false)}>
-                <img className="h-12 w-auto" src="/logo.png" alt="Yosai Logo" onError={(e) => { e.target.style.display='none'; }} />
+                <img className="h-10 w-auto" src="/logo.png" alt="Yosai Logo" onError={(e) => { e.target.style.display='none'; }} />
               </Link>
             </SheetTitle>
             <SheetDescription></SheetDescription>
           </SheetHeader>
-          <Separator />
-          <div className="flex flex-col">
-            <nav className="flex-grow py-4 space-y-2">
-              <Link to="/readymades" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                <ShoppingBag className="mr-3 h-5 w-5" /> Ready Mades
-              </Link>
-              <Link to="/stitch-service" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                <GiSewingNeedle className="mr-3 h-5 w-5" /> Stitching Services
-              </Link>
-              <Link to="/contact" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                <Phone className="mr-3 h-5 w-5" /> Contact
-              </Link>
-              <Separator className="my-4" />
-              <Link to="/cart" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                <FiShoppingCart className="mr-3 h-5 w-5" /> Cart
-                {itemCount > 0 && <span className="ml-auto bg-pink-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">{itemCount}</span>}
-              </Link>
-              {isAuthenticated ? (
-                <>
-                  <div className="flex items-center gap-3 py-3 px-1">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                      {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
-                    </div>
-                  </div>
-                  <Separator className="my-2" />
-                  <Link to="/orders" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                    <ListOrdered className="mr-3 h-5 w-5" /> My Orders
-                  </Link>
-                  <Link to="/account/addresses" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                    <MapPin className="mr-3 h-5 w-5" /> Manage Addresses
-                  </Link>
-                  <Link to="/wallet" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                    <Wallet className="mr-3 h-5 w-5" /> Wallet
-                  </Link>
-                  <Link to="/support" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                    <Headphones className="mr-3 h-5 w-5" /> Support
-                  </Link>
-                  <Link to="/account/edit" className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                    <Edit className="mr-3 h-5 w-5" /> Edit Profile
-                  </Link>
-                </>
-              ) : (
-                <Link
-                  to="/auth"
-                  className="flex items-center py-3 text-base font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <LogIn className="mr-3 h-5 w-5" /> Login
-                </Link>
-              )}
-              {isAuthenticated && !isVendor && !isAdmin && (
-                <Link to="/vendor/onboarding" className="flex items-center py-3 text-base font-medium text-pink-500 hover:bg-pink-50 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                  <Store className="mr-3 h-5 w-5" /> Register as Seller
-                </Link>
-              )}
-              {isVendor && (
-                <Link to="/vendor/dashboard" className="flex items-center py-3 text-base font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                  <Store className="mr-3 h-5 w-5" /> Vendor Panel
-                </Link>
-              )}
-              {isAdmin && (
-                <Link to="/admin/dashboard" className="flex items-center py-3 text-base font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
-                  <Store className="mr-3 h-5 w-5" /> Admin Panel
-                </Link>
-              )}
-              {isAuthenticated && (
-                <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center py-3 w-full text-base font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                  <LogOut className="mr-3 h-5 w-5" /> Logout
-                </button>
-              )}
-            </nav>
-            <SheetFooter className="mt-auto pt-4 border-t">
-              <div className="w-full">
-                <Link to="/stitch-service" onClick={() => setIsOpen(false)} className="w-full">
-                  <motion.p className="w-full text-center px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer" whileHover={{ scale: 1.02 }}>
-                    Book Stitching Service
-                  </motion.p>
-                </Link>
+
+          {/* User card if logged in */}
+          {isAuthenticated && (
+            <div className="px-4 pb-2 flex-shrink-0">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
+                  <p className="text-[11px] text-gray-500 truncate">{user?.email}</p>
+                </div>
               </div>
-            </SheetFooter>
-          </div>
+            </div>
+          )}
+
+          <Separator className="flex-shrink-0" />
+
+          {/* Scrollable nav */}
+          <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
+            <Link to="/readymades" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+              <ShoppingBag className="mr-3 h-4 w-4" /> Ready Mades
+            </Link>
+            <Link to="/stitch-service" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+              <GiSewingNeedle className="mr-3 h-4 w-4" /> Stitching Services
+            </Link>
+            <Link to="/contact" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+              <Phone className="mr-3 h-4 w-4" /> Contact
+            </Link>
+            <Link to="/cart" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+              <FiShoppingCart className="mr-3 h-4 w-4" /> Cart
+              {itemCount > 0 && <span className="ml-auto bg-pink-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">{itemCount}</span>}
+            </Link>
+            <Link to="/wishlist" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+              <Store className="mr-3 h-4 w-4" /> Wishlist
+            </Link>
+
+            {isAuthenticated && (
+              <>
+                <Separator className="my-2" />
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 py-1">Your Account</p>
+                <Link to="/orders" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                  <ListOrdered className="mr-3 h-4 w-4" /> My Orders
+                </Link>
+                <Link to="/account/addresses" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                  <MapPin className="mr-3 h-4 w-4" /> Addresses
+                </Link>
+                <Link to="/wallet" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                  <Wallet className="mr-3 h-4 w-4" /> Wallet
+                </Link>
+                <Link to="/support" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                  <Headphones className="mr-3 h-4 w-4" /> Support
+                </Link>
+                <Link to="/account/edit" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                  <Edit className="mr-3 h-4 w-4" /> Edit Profile
+                </Link>
+              </>
+            )}
+
+            {!isAuthenticated && (
+              <Link to="/auth" className="flex items-center py-2.5 px-2 text-sm font-medium text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                <LogIn className="mr-3 h-4 w-4" /> Login
+              </Link>
+            )}
+
+            {(isVendor || isAdmin || (isAuthenticated && !isVendor && !isAdmin)) && (
+              <>
+                <Separator className="my-2" />
+                {isAuthenticated && !isVendor && !isAdmin && (
+                  <Link to="/vendor/onboarding" className="flex items-center py-2.5 px-2 text-sm font-medium text-pink-500 hover:bg-pink-50 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                    <Store className="mr-3 h-4 w-4" /> Register as Seller
+                  </Link>
+                )}
+                {isVendor && (
+                  <Link to="/vendor/dashboard" className="flex items-center py-2.5 px-2 text-sm font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                    <Store className="mr-3 h-4 w-4" /> Vendor Panel
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link to="/admin/dashboard" className="flex items-center py-2.5 px-2 text-sm font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" onClick={() => setIsOpen(false)}>
+                    <Store className="mr-3 h-4 w-4" /> Admin Panel
+                  </Link>
+                )}
+              </>
+            )}
+
+            {isAuthenticated && (
+              <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center py-2.5 px-2 w-full text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                <LogOut className="mr-3 h-4 w-4" /> Logout
+              </button>
+            )}
+          </nav>
+
+          <SheetFooter className="flex-shrink-0 px-4 py-3 border-t">
+            <div className="w-full">
+              <Link to="/stitch-service" onClick={() => setIsOpen(false)} className="w-full">
+                <motion.p className="w-full text-center px-4 py-2.5 bg-gradient-to-r from-pink-600 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-md cursor-pointer" whileHover={{ scale: 1.02 }}>
+                  Book Stitching Service
+                </motion.p>
+              </Link>
+            </div>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
       <div className="md:hidden pt-[64px]"></div>
