@@ -19,7 +19,7 @@ export default function AdminOrders() {
     },
   });
 
-  const orders = (data?.data || []).filter(o =>
+  const orders = (data || []).filter(o =>
     !search || o.orderId?.toLowerCase().includes(search.toLowerCase()) ||
     o.customerId?.name?.toLowerCase().includes(search.toLowerCase())
   );
@@ -36,7 +36,7 @@ export default function AdminOrders() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders</h1>
         <p className="text-gray-500 text-sm mt-1">All platform orders</p>
       </div>
 

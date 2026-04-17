@@ -2,6 +2,7 @@ import { Router } from "express";
 import { protect } from "../middleware/auth.js";
 import { createNotification } from "../services/notification.service.js";
 import User from "../models/User.js";
+import Inquiry from "../models/Inquiry.js";
 
 const router = Router();
 
@@ -12,15 +13,16 @@ router.post("/contact", async (req, res) => {
     if (!name || !email || !message)
       return res.status(400).json({ success: false, message: "Name, email and message are required" });
 
-    // Notify admin (find admin user)
+    const inquiry = await Inquiry.create({ type: "contact", name, email, phone: phoneno, message });
+
     const admin = await User.findOne({ role: "admin" });
     if (admin) {
       await createNotification({
         userId: admin._id,
         title: "New Contact Message",
         message: `${name} (${email}): ${message.substring(0, 100)}`,
-        type: "low_stock",
-        referenceId: email,
+        type: "new_order",
+        referenceId: inquiry._id.toString(),
       });
     }
 
@@ -33,18 +35,21 @@ router.post("/contact", async (req, res) => {
 // Callback request
 router.post("/callback", async (req, res) => {
   try {
-    const { name, phone, preferredTime } = req.body;
-    if (!name || !phone)
+    const { name, phoneno, phone, preferredTime } = req.body;
+    const contactPhone = phoneno || phone;
+    if (!name || !contactPhone)
       return res.status(400).json({ success: false, message: "Name and phone are required" });
+
+    const inquiry = await Inquiry.create({ type: "callback", name, phone: contactPhone, preferredTime });
 
     const admin = await User.findOne({ role: "admin" });
     if (admin) {
       await createNotification({
         userId: admin._id,
         title: "Callback Requested",
-        message: `${name} (${phone}) requested a callback${preferredTime ? ` at ${preferredTime}` : ""}.`,
-        type: "low_stock",
-        referenceId: phone,
+        message: `${name} (${contactPhone}) requested a callback${preferredTime ? ` at ${preferredTime}` : ""}.`,
+        type: "new_order",
+        referenceId: inquiry._id.toString(),
       });
     }
 
@@ -59,15 +64,27 @@ router.post("/bookings", protect, async (req, res) => {
   try {
     const { serviceType, measurements, fabricDescription, preferredDate, notes } = req.body;
 
-    // Notify admin about new booking
+    const inquiry = await Inquiry.create({
+      type: "booking",
+      name: req.user.name,
+      email: req.user.email,
+      phone: req.user.phone,
+      userId: req.user._id,
+      serviceType,
+      measurements,
+      fabricDescription,
+      preferredDate,
+      notes,
+    });
+
     const admin = await User.findOne({ role: "admin" });
     if (admin) {
       await createNotification({
         userId: admin._id,
         title: "New Stitch Booking",
-        message: `User ${req.user.name} booked ${serviceType} service for ${preferredDate || "any date"}.`,
+        message: `${req.user.name} booked ${serviceType} service for ${preferredDate || "any date"}.`,
         type: "new_order",
-        referenceId: req.user._id.toString(),
+        referenceId: inquiry._id.toString(),
       });
     }
 
@@ -76,7 +93,7 @@ router.post("/bookings", protect, async (req, res) => {
       title: "Booking Confirmed",
       message: `Your ${serviceType} service booking has been received. We will confirm shortly.`,
       type: "order_placed",
-      referenceId: req.user._id.toString(),
+      referenceId: inquiry._id.toString(),
     });
 
     res.status(201).json({ success: true, message: "Booking submitted successfully." });

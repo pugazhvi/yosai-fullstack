@@ -137,6 +137,17 @@ export default function VendorOrders() {
                   </div>
                 </div>
 
+                {/* Earnings breakdown */}
+                {(order.commission || order.vendorEarning) && (
+                  <div className="flex items-center gap-3 text-xs mb-3 px-3 py-2 rounded-lg bg-green-50 border border-green-100">
+                    <span className="text-gray-500">Subtotal: <span className="font-semibold text-gray-800">{formatPrice(order.subtotal)}</span></span>
+                    <span className="text-gray-300">|</span>
+                    <span className="text-gray-500">Commission: <span className="font-semibold text-red-600">-{formatPrice(order.commission?.amount || 0)} ({order.commission?.rate || 0}%)</span></span>
+                    <span className="text-gray-300">|</span>
+                    <span className="text-gray-500">Your Earning: <span className="font-bold text-green-700">{formatPrice(order.vendorEarning || 0)}</span></span>
+                  </div>
+                )}
+
                 {/* Items */}
                 <div className="flex gap-2 overflow-x-auto pb-2 mb-3">
                   {order.items?.map((item, i) => (

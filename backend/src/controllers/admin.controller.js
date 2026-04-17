@@ -188,7 +188,10 @@ export const updateProductStatus = async (req, res) => {
 // Commission Management
 export const getCommissions = async (req, res) => {
   try {
-    const commissions = await Commission.find().sort("-createdAt");
+    const commissions = await Commission.find()
+      .populate("vendorId", "brandName")
+      .populate("categoryId", "name")
+      .sort("-createdAt");
     res.json({ success: true, data: commissions });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

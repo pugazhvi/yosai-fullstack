@@ -84,7 +84,7 @@ export default function AdminCategories() {
     <div className="space-y-6">
       <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Categories</h1>
           <p className="text-gray-500 text-sm mt-1">Manage product categories</p>
         </div>
         <button onClick={() => { setForm(emptyForm); setEditId(null); setShowForm(true); }} className="btn-primary flex items-center gap-2">

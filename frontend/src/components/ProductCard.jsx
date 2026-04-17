@@ -61,7 +61,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
       <motion.div
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        className="h-full"
+        className="h-full overflow-hidden rounded-xl sm:rounded-2xl"
       >
         <div
           onClick={handleCardClick}
@@ -87,7 +87,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
 
             {/* Discount badge */}
             {discount > 0 && (
-              <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+              <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-[1]">
                 <span className="bg-rose-500 text-white text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg shadow-lg shadow-rose-500/25">
                   {discount}% OFF
                 </span>

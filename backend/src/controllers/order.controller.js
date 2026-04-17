@@ -51,13 +51,29 @@ export const verifyAndPlaceOrder = async (req, res) => {
         return res.status(400).json({ success: false, message: "Payment verification failed" });
     }
 
-    const cart = await Cart.findOne({ cartId }).populate({ path: "items.productId", select: "name images vendorId" });
+    const cart = await Cart.findOne({ cartId }).populate({ path: "items.productId", select: "name images vendorId variants category" });
     if (!cart?.items?.length) return res.status(400).json({ success: false, message: "Cart is empty" });
+
+    // Re-validate stock at checkout
+    for (const item of cart.items) {
+      const product = item.productId;
+      if (!product) continue;
+      const variant = item.variantId
+        ? product.variants?.id(item.variantId)
+        : product.variants?.[0];
+      if (variant && variant.stock < item.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `"${item.name}" has only ${variant.stock} left in stock`,
+        });
+      }
+    }
 
     const cartItems = cart.items.map((i) => ({
       productId: i.productId._id,
       variantId: i.variantId,
       vendorId: i.vendorId,
+      categoryId: i.productId.category,
       name: i.name,
       image: i.image,
       price: i.price,

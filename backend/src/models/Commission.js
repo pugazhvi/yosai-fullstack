@@ -12,8 +12,9 @@ const CommissionSchema = new mongoose.Schema(
     ],
     isDefault: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
-    appliedTo: { type: String, enum: ["global", "vendor"], default: "global" },
+    appliedTo: { type: String, enum: ["global", "vendor", "category"], default: "global" },
     vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor", default: null },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category", default: null },
   },
   { timestamps: true }
 );

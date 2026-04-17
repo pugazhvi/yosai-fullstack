@@ -56,7 +56,7 @@ export default function AdminSupportTickets() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Headphones className="w-6 h-6 text-purple-600" /> Support Tickets
         </h1>
         <select className="input w-full sm:w-40" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>

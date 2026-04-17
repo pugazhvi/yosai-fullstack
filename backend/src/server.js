@@ -25,6 +25,8 @@ import couponRoutes from "./routes/coupon.routes.js";
 import vendorBankRoutes from "./routes/vendor-bank.routes.js";
 import documentRoutes from "./routes/document.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import reviewRoutes from "./routes/review.routes.js";
+import inquiryRoutes from "./routes/inquiry.routes.js";
 
 // Services
 import { checkDelayedOrders } from "./services/order.service.js";
@@ -61,6 +63,8 @@ app.use("/api/coupons", couponRoutes);
 app.use("/api/vendor-bank", vendorBankRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/inquiries", inquiryRoutes);
 
 app.get("/api/health", (_, res) => res.json({ status: "ok", version: "2.0.0" }));
 

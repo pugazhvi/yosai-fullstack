@@ -4,11 +4,23 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { formatPrice, statusColor } from "@/lib/utils";
 import toast from "react-hot-toast";
-import { Plus, Package, Pencil, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, Package, Pencil, Trash2, AlertTriangle, PackagePlus } from "lucide-react";
 
 export default function VendorProducts() {
   const qc = useQueryClient();
   const [deleting, setDeleting] = useState(null);
+  const [stockEdit, setStockEdit] = useState(null);
+  const [stockVal, setStockVal] = useState("");
+
+  const stockMut = useMutation({
+    mutationFn: ({ productId, variantId, stock }) => api.patch(`/products/${productId}/stock`, { variantId, stock: Number(stock) }),
+    onSuccess: () => {
+      toast.success("Stock updated");
+      qc.invalidateQueries({ queryKey: ["vendor-products"] });
+      setStockEdit(null);
+    },
+    onError: (err) => toast.error(err?.message || "Failed"),
+  });
 
   const { data, isLoading } = useQuery({
     queryKey: ["vendor-products"],
@@ -89,7 +101,42 @@ export default function VendorProducts() {
                     <p className="font-bold text-gray-900">{formatPrice(lowestPrice)}</p>
                     <p className="text-xs text-gray-500">Stock: {totalStock}</p>
                   </div>
-                  <div className="flex gap-2 mt-3">
+                  {/* Quick stock edit */}
+                  {stockEdit === p._id ? (
+                    <div className="mt-2 flex gap-1.5 items-center">
+                      {p.variants?.map((v, vi) => (
+                        <div key={v._id} className="flex-1 flex flex-col gap-1">
+                          <span className="text-[10px] text-gray-400 truncate">{v.color || `V${vi + 1}`}</span>
+                          <input
+                            type="number"
+                            min="0"
+                            defaultValue={v.stock || 0}
+                            className="input text-xs py-1 text-center"
+                            onChange={(e) => setStockVal({ variantId: v._id, stock: e.target.value })}
+                          />
+                        </div>
+                      ))}
+                      <div className="flex flex-col gap-1 pt-3">
+                        <button
+                          onClick={() => stockVal && stockMut.mutate({ productId: p._id, ...stockVal })}
+                          disabled={stockMut.isPending}
+                          className="bg-green-500 text-white text-[10px] px-2 py-1 rounded-lg font-medium"
+                        >
+                          {stockMut.isPending ? "..." : "Save"}
+                        </button>
+                        <button onClick={() => setStockEdit(null)} className="text-[10px] text-gray-500 hover:text-gray-700">Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setStockEdit(p._id)}
+                      className="mt-2 w-full flex items-center justify-center gap-1 text-[11px] text-gray-500 hover:text-pink-600 py-1 hover:bg-pink-50 rounded-lg transition-colors"
+                    >
+                      <PackagePlus className="w-3 h-3" /> Update Stock
+                    </button>
+                  )}
+
+                  <div className="flex gap-2 mt-2">
                     <Link to={`/vendor/products/edit/${p._id}`} className="flex-1 btn-outline py-1.5 text-xs flex items-center justify-center gap-1">
                       <Pencil className="w-3 h-3" /> Edit
                     </Link>

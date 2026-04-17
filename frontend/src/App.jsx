@@ -55,6 +55,7 @@ import AdminVendors from "@/pages/admin/Vendors";
 import VendorDetail from "@/pages/admin/VendorDetail";
 import AdminProducts from "@/pages/admin/Products";
 import AdminCategories from "@/pages/admin/Categories";
+import AdminInventory from "@/pages/admin/Inventory";
 import AdminDocumentReview from "@/pages/admin/DocumentReview";
 import AdminOrders from "@/pages/admin/Orders";
 import AdminCommissions from "@/pages/admin/Commissions";
@@ -143,6 +144,7 @@ export default function App() {
         <Route path="vendors/:id" element={<VendorDetail />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="categories" element={<AdminCategories />} />
+        <Route path="inventory" element={<AdminInventory />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="commissions" element={<AdminCommissions />} />

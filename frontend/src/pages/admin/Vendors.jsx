@@ -50,7 +50,7 @@ export default function AdminVendors() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Vendors</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Vendors</h1>
         <p className="text-gray-500 text-sm mt-1">Manage vendor applications and accounts</p>
       </div>
 
@@ -62,7 +62,7 @@ export default function AdminVendors() {
         <div className="flex gap-2 flex-wrap">
           {filters.map(f => (
             <button key={f.key} onClick={() => setFilter(f.key)}
-              className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all ${filter === f.key ? "bg-purple-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${filter === f.key ? "bg-purple-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
               {f.label}
             </button>
           ))}
@@ -79,28 +79,30 @@ export default function AdminVendors() {
       ) : (
         <div className="space-y-3">
           {vendors.map(vendor => (
-            <div key={vendor._id} className="card p-5 flex items-center gap-4">
-              <div className="w-10 h-10 brand-gradient rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                {vendor.brandName?.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold text-gray-900 truncate">{vendor.brandName}</p>
-                  <span className={`text-xs px-2 py-0.5 rounded-full capitalize flex-shrink-0 ${statusBadge(vendor.status)}`}>{vendor.status}</span>
+            <div key={vendor._id} className="card p-3 sm:p-5">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 brand-gradient rounded-xl flex items-center justify-center text-white font-bold text-xs sm:text-sm flex-shrink-0">
+                  {vendor.brandName?.charAt(0)}
                 </div>
-                <p className="text-sm text-gray-400 truncate">{vendor.userId?.email}</p>
-                <p className="text-xs text-gray-400">Joined {formatDate(vendor.createdAt)}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-gray-900 text-sm truncate">{vendor.brandName}</p>
+                    <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full capitalize flex-shrink-0 ${statusBadge(vendor.status)}`}>{vendor.status}</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-400 truncate">{vendor.userId?.email}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400">Joined {formatDate(vendor.createdAt)}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 mt-3 sm:mt-0 sm:absolute sm:right-5 sm:top-1/2 sm:-translate-y-1/2 flex-wrap">
                 {vendor.status === "pending" && (
                   <>
                     <button onClick={() => updateMut.mutate({ id: vendor._id, status: "approved" })}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-green-500 text-white rounded-xl text-sm hover:bg-green-600 transition-colors">
-                      <CheckCircle className="w-3.5 h-3.5" /> Approve
+                      className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 bg-green-500 text-white rounded-xl text-xs sm:text-sm hover:bg-green-600 transition-colors">
+                      <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Approve
                     </button>
                     <button onClick={() => updateMut.mutate({ id: vendor._id, status: "rejected" })}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded-xl text-sm hover:bg-red-600 transition-colors">
-                      <XCircle className="w-3.5 h-3.5" /> Reject
+                      className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 bg-red-500 text-white rounded-xl text-xs sm:text-sm hover:bg-red-600 transition-colors">
+                      <XCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Reject
                     </button>
                   </>
                 )}

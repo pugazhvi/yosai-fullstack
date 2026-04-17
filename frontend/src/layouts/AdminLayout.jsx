@@ -14,6 +14,7 @@ const navItems = [
   { to: "/admin/vendors", icon: Users, label: "Vendors" },
   { to: "/admin/products", icon: Package, label: "Products" },
   { to: "/admin/categories", icon: FolderTree, label: "Categories" },
+  { to: "/admin/inventory", icon: Package, label: "Inventory" },
   { to: "/admin/orders", icon: ShoppingBag, label: "Orders" },
   { to: "/admin/users", icon: Users, label: "Users" },
   { to: "/admin/commissions", icon: Percent, label: "Commissions" },

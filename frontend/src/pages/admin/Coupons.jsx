@@ -62,7 +62,7 @@ export default function AdminCoupons() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Tag className="w-6 h-6 text-purple-600" /> Coupon Management
         </h1>
         <button onClick={() => { closeForm(); setShowForm(true); }} className="btn-primary flex items-center gap-2">

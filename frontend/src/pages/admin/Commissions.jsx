@@ -6,19 +6,25 @@ import toast from "react-hot-toast";
 import { Percent, Plus, Trash2, Edit2, X } from "lucide-react";
 
 const emptySlab = () => ({ minAmount: "", maxAmount: "", rate: "" });
+const emptyForm = { label: "", slabs: [emptySlab()], isDefault: false, appliedTo: "global", vendorId: "", categoryId: "" };
 
 export default function AdminCommissions() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState({ label: "", slabs: [emptySlab()], isDefault: false });
+  const [form, setForm] = useState(emptyForm);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-commissions"],
-    queryFn: async () => {
-      const res = await api.get("/admin/commissions");
-      return res.data;
-    },
+    queryFn: async () => { const res = await api.get("/admin/commissions"); return res.data; },
+  });
+  const { data: vendors = [] } = useQuery({
+    queryKey: ["admin-vendors-list"],
+    queryFn: async () => { const res = await api.get("/admin/vendors"); return res.data || []; },
+  });
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => { const res = await api.get("/categories"); return Array.isArray(res) ? res : res.data || []; },
   });
 
   const createMut = useMutation({
@@ -45,7 +51,14 @@ export default function AdminCommissions() {
 
   const handleEdit = (c) => {
     setEditId(c._id);
-    setForm({ label: c.label, slabs: c.slabs.map(s => ({ minAmount: s.minAmount, maxAmount: s.maxAmount || "", rate: s.rate })), isDefault: c.isDefault });
+    setForm({
+      label: c.label,
+      slabs: c.slabs.map(s => ({ minAmount: s.minAmount, maxAmount: s.maxAmount || "", rate: s.rate })),
+      isDefault: c.isDefault,
+      appliedTo: c.appliedTo || "global",
+      vendorId: c.vendorId?._id || c.vendorId || "",
+      categoryId: c.categoryId?._id || c.categoryId || "",
+    });
     setShowForm(true);
   };
 
@@ -57,34 +70,60 @@ export default function AdminCommissions() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Commission Engine</h1>
-          <p className="text-gray-500 text-sm mt-1">Configure dynamic commission slabs</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Commission Engine</h1>
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">Configure dynamic commission slabs</p>
         </div>
-        <button onClick={() => { setShowForm(true); setEditId(null); setForm({ label: "", slabs: [emptySlab()], isDefault: false }); }}
-          className="btn-primary flex items-center gap-2">
+        <button onClick={() => { setShowForm(true); setEditId(null); setForm(emptyForm); }}
+          className="btn-primary flex items-center gap-2 text-sm">
           <Plus className="w-4 h-4" /> New Config
         </button>
       </div>
 
       {/* Form */}
       {showForm && (
-        <div className="card p-6 border-2 border-purple-100">
+        <div className="card p-4 sm:p-6 border-2 border-purple-100">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-gray-900">{editId ? "Edit" : "New"} Commission Config</h2>
             <button onClick={() => { setShowForm(false); setEditId(null); }} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Label *</label>
                 <input className="input" value={form.label} onChange={e => setForm(f => ({ ...f, label: e.target.value }))} placeholder="e.g. Standard Rate" required />
               </div>
-              <div className="flex items-center gap-2 mt-6">
-                <input type="checkbox" id="isDefault" checked={form.isDefault} onChange={e => setForm(f => ({ ...f, isDefault: e.target.checked }))} className="w-4 h-4 accent-purple-600" />
-                <label htmlFor="isDefault" className="text-sm text-gray-700">Set as Default Config</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Apply To</label>
+                <select className="input" value={form.appliedTo} onChange={e => setForm(f => ({ ...f, appliedTo: e.target.value, vendorId: "", categoryId: "" }))}>
+                  <option value="global">Global (all vendors)</option>
+                  <option value="vendor">Specific Vendor</option>
+                  <option value="category">Specific Category</option>
+                </select>
               </div>
+              {form.appliedTo === "vendor" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Vendor *</label>
+                  <select className="input" value={form.vendorId} onChange={e => setForm(f => ({ ...f, vendorId: e.target.value }))} required>
+                    <option value="">Select vendor</option>
+                    {vendors.map(v => <option key={v._id} value={v._id}>{v.brandName}</option>)}
+                  </select>
+                </div>
+              )}
+              {form.appliedTo === "category" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                  <select className="input" value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))} required>
+                    <option value="">Select category</option>
+                    {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="isDefault" checked={form.isDefault} onChange={e => setForm(f => ({ ...f, isDefault: e.target.checked }))} className="w-4 h-4 accent-purple-600" />
+              <label htmlFor="isDefault" className="text-sm text-gray-700">Set as Default Config</label>
             </div>
 
             <div>
@@ -131,19 +170,21 @@ export default function AdminCommissions() {
       ) : (
         <div className="space-y-3">
           {commissions.map(c => (
-            <div key={c._id} className={`card p-5 ${c.isDefault ? "border-2 border-purple-200" : ""}`}>
+            <div key={c._id} className={`card p-4 sm:p-5 ${c.isDefault ? "border-2 border-purple-200" : ""}`}>
               <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Percent className="w-4 h-4 text-purple-600" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-bold text-gray-900">{c.label}</p>
-                      {c.isDefault && <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">Default</span>}
-                      {!c.isActive && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="font-bold text-gray-900 text-sm sm:text-base truncate">{c.label}</p>
+                      {c.isDefault && <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full">Default</span>}
+                      {!c.isActive && <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">Inactive</span>}
                     </div>
-                    <p className="text-xs text-gray-400 capitalize">{c.appliedTo === "global" ? "Global Config" : `Vendor Override`}</p>
+                    <p className="text-xs text-gray-400 capitalize">
+                      {c.appliedTo === "global" ? "Global Config" : c.appliedTo === "category" ? `Category: ${c.categoryId?.name || "—"}` : `Vendor: ${c.vendorId?.brandName || "—"}`}
+                    </p>
                   </div>
                 </div>
                 <button onClick={() => handleEdit(c)} className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-colors">
@@ -151,7 +192,8 @@ export default function AdminCommissions() {
                 </button>
               </div>
 
-              <div className="overflow-x-auto">
+              {/* Slabs — card style on mobile, table on desktop */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="text-gray-400 border-b border-gray-100">
@@ -170,6 +212,18 @@ export default function AdminCommissions() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              <div className="sm:hidden space-y-2">
+                {c.slabs?.map((slab, i) => (
+                  <div key={i} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                    <div className="text-xs text-gray-600">
+                      <span className="font-medium text-gray-900">{formatPrice(slab.minAmount)}</span>
+                      <span className="mx-1">→</span>
+                      <span className="font-medium text-gray-900">{slab.maxAmount ? formatPrice(slab.maxAmount) : "∞"}</span>
+                    </div>
+                    <span className="text-sm font-bold text-purple-600">{slab.rate}%</span>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

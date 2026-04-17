@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import SizeComp from "@/components/SizeComp";
 import RelatedProducts from "@/components/RelatedProducts";
+import ProductReviews from "@/components/ProductReviews";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -270,26 +271,7 @@ export default function ProductDetail() {
               )}
 
               {activeTab === "reviews" && (
-                <div className="max-w-2xl">
-                  {totalRatings > 0 ? (
-                    <div className="flex items-center gap-5 p-6 bg-gray-50 rounded-2xl">
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-gray-900">{avgRating}</div>
-                        <div className="flex items-center gap-0.5 mt-1 justify-center">
-                          {[1, 2, 3, 4, 5].map(s => (
-                            <Star key={s} className={`h-4 w-4 ${s <= Math.round(Number(avgRating)) ? "text-amber-400 fill-amber-400" : "text-gray-200"}`} />
-                          ))}
-                        </div>
-                        <p className="text-xs text-gray-400 mt-1">{totalRatings} reviews</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 text-gray-400">
-                      <Star className="w-10 h-10 mx-auto mb-3 text-gray-200" />
-                      <p className="text-sm">No reviews yet. Be the first to review!</p>
-                    </div>
-                  )}
-                </div>
+                <ProductReviews productId={product._id} />
               )}
             </motion.div>
           </AnimatePresence>

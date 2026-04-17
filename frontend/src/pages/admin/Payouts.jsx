@@ -53,7 +53,7 @@ export default function AdminPayouts() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Payouts</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Payouts</h1>
           <p className="text-gray-500 text-sm mt-1">Process vendor payout requests</p>
         </div>
         {filter === "pending" && payouts.length > 0 && (
@@ -100,7 +100,7 @@ export default function AdminPayouts() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-gray-900">{formatPrice(payout.amount)}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{formatPrice(payout.amount)}</p>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${statusBadge(payout.status)}`}>{payout.status}</span>
                 </div>
               </div>

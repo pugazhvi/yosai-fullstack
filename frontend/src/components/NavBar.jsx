@@ -413,7 +413,6 @@ export default function NavBar() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
-      <div className="md:hidden pt-[64px]"></div>
     </div>
   );
 }
