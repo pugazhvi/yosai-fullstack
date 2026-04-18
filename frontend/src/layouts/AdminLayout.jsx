@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { Outlet, NavLink, Link, useLocation } from "react-router-dom";
+import { Outlet, NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { notificationRoute } from "@/lib/notificationRoute";
 import {
   LayoutDashboard, Users, Package, ShoppingBag, Percent, Banknote,
-  Headphones, Tag, FileText, LogOut, Shield, Bell, FolderTree,
+  Headphones, Tag, FileText, LogOut, Shield, Bell, FolderTree, MessageSquare,
   Home, Menu, X,
 } from "lucide-react";
 
@@ -21,12 +22,14 @@ const navItems = [
   { to: "/admin/payouts", icon: Banknote, label: "Payouts" },
   { to: "/admin/coupons", icon: Tag, label: "Coupons" },
   { to: "/admin/support", icon: Headphones, label: "Support" },
+  { to: "/admin/inquiries", icon: MessageSquare, label: "Inquiries" },
   { to: "/admin/documents", icon: FileText, label: "Doc Types" },
   { to: "/admin/document-review", icon: FileText, label: "Doc Review" },
 ];
 
 function NotificationBell() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -41,8 +44,20 @@ function NotificationBell() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
+  const readOneMut = useMutation({
+    mutationFn: (id) => api.patch(`/notifications/${id}/read`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+
   const notifications = data || [];
   const unread = notifications.filter(n => !n.isRead).length;
+
+  const handleClick = (n) => {
+    const target = notificationRoute(n, "admin");
+    if (!n.isRead) readOneMut.mutate(n._id);
+    setOpen(false);
+    if (target) navigate(target);
+  };
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -68,10 +83,14 @@ function NotificationBell() {
             {notifications.length === 0 ? (
               <p className="text-center text-gray-400 text-sm py-8">No notifications</p>
             ) : notifications.slice(0, 10).map(n => (
-              <div key={n._id} className={`px-4 py-3 border-b border-gray-50 ${!n.isRead ? "bg-purple-50" : ""}`}>
+              <button
+                key={n._id}
+                onClick={() => handleClick(n)}
+                className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${!n.isRead ? "bg-purple-50 hover:bg-purple-100" : ""}`}
+              >
                 <p className="text-sm font-medium text-gray-900">{n.title}</p>
                 <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>
-              </div>
+              </button>
             ))}
           </div>
         </div>

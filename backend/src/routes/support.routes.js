@@ -8,15 +8,15 @@ import {
 const router = Router();
 
 // Customer/Vendor
-router.post("/", protect, createTicket);
-router.get("/my", protect, getMyTickets);
-router.get("/my/:id", protect, getTicketDetail);
-router.post("/:id/reply", protect, addReply);
+router.post("/tickets", protect, createTicket);
+router.get("/tickets", protect, getMyTickets);
+router.get("/tickets/:id", protect, getTicketDetail);
+router.post("/tickets/:id/reply", protect, addReply);
 
 // Admin
-router.get("/admin", protect, requireRole("admin"), getAllTickets);
-router.get("/admin/:id", protect, requireRole("admin"), getTicketDetailAdmin);
-router.patch("/admin/:id", protect, requireRole("admin"), updateTicket);
-router.post("/admin/:id/reply", protect, requireRole("admin"), addReply);
+router.get("/admin/tickets", protect, requireRole("admin"), getAllTickets);
+router.get("/admin/tickets/:id", protect, requireRole("admin"), getTicketDetailAdmin);
+router.patch("/admin/tickets/:id", protect, requireRole("admin"), updateTicket);
+router.post("/admin/tickets/:id/reply", protect, requireRole("admin"), addReply);
 
 export default router;

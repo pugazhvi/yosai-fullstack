@@ -21,8 +21,9 @@ router.post("/contact", async (req, res) => {
         userId: admin._id,
         title: "New Contact Message",
         message: `${name} (${email}): ${message.substring(0, 100)}`,
-        type: "new_order",
+        type: "new_message",
         referenceId: inquiry._id.toString(),
+        referenceModel: "Inquiry",
       });
     }
 
@@ -48,8 +49,9 @@ router.post("/callback", async (req, res) => {
         userId: admin._id,
         title: "Callback Requested",
         message: `${name} (${contactPhone}) requested a callback${preferredTime ? ` at ${preferredTime}` : ""}.`,
-        type: "new_order",
+        type: "new_message",
         referenceId: inquiry._id.toString(),
+        referenceModel: "Inquiry",
       });
     }
 
@@ -83,8 +85,9 @@ router.post("/bookings", protect, async (req, res) => {
         userId: admin._id,
         title: "New Stitch Booking",
         message: `${req.user.name} booked ${serviceType} service for ${preferredDate || "any date"}.`,
-        type: "new_order",
+        type: "new_message",
         referenceId: inquiry._id.toString(),
+        referenceModel: "Inquiry",
       });
     }
 
@@ -94,6 +97,7 @@ router.post("/bookings", protect, async (req, res) => {
       message: `Your ${serviceType} service booking has been received. We will confirm shortly.`,
       type: "order_placed",
       referenceId: inquiry._id.toString(),
+      referenceModel: "Inquiry",
     });
 
     res.status(201).json({ success: true, message: "Booking submitted successfully." });

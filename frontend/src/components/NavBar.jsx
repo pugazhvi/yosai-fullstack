@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { notificationRoute } from "@/lib/notificationRoute";
 import { BsBox2Heart } from "react-icons/bs";
 import { GiSewingNeedle } from "react-icons/gi";
 import { FiShoppingCart, FiUser, FiMenu, FiX } from "react-icons/fi";
@@ -16,6 +17,7 @@ import api from "@/lib/api";
 function NotificationBell() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -34,8 +36,20 @@ function NotificationBell() {
     onSuccess: () => qc.invalidateQueries(["notifications"]),
   });
 
+  const readOneMut = useMutation({
+    mutationFn: (id) => api.patch(`/notifications/${id}/read`),
+    onSuccess: () => qc.invalidateQueries(["notifications"]),
+  });
+
   const notifications = data || [];
   const unread = notifications.filter(n => !n.isRead).length;
+
+  const handleClick = (n) => {
+    const target = notificationRoute(n, user?.role || "customer");
+    if (!n.isRead) readOneMut.mutate(n._id);
+    setOpen(false);
+    if (target) navigate(target);
+  };
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -66,10 +80,14 @@ function NotificationBell() {
               <p className="text-center text-gray-400 text-sm py-8">No notifications</p>
             ) : (
               notifications.slice(0, 10).map(n => (
-                <div key={n._id} className={`px-4 py-3 border-b border-gray-50 ${!n.isRead ? "bg-pink-50/50" : ""}`}>
+                <button
+                  key={n._id}
+                  onClick={() => handleClick(n)}
+                  className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${!n.isRead ? "bg-pink-50/50 hover:bg-pink-100/50" : ""}`}
+                >
                   <p className="text-sm font-medium text-gray-900">{n.title}</p>
                   <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>
-                </div>
+                </button>
               ))
             )}
           </div>

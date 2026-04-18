@@ -1,5 +1,20 @@
 import SupportTicket from "../models/SupportTicket.js";
+import User from "../models/User.js";
 import { createNotification } from "../services/notification.service.js";
+
+const notifyAdmins = async ({ title, message, referenceId }) => {
+  const admins = await User.find({ role: "admin" }).select("_id");
+  await Promise.all(admins.map((a) =>
+    createNotification({
+      userId: a._id,
+      title,
+      message,
+      type: "new_message",
+      referenceId,
+      referenceModel: "SupportTicket",
+    })
+  ));
+};
 
 // Create ticket (customer/vendor)
 export const createTicket = async (req, res) => {
@@ -10,6 +25,12 @@ export const createTicket = async (req, res) => {
     const ticket = await SupportTicket.create({
       userId: req.user._id,
       subject, description, category, priority, orderId, attachment,
+    });
+
+    await notifyAdmins({
+      title: "New Support Ticket",
+      message: `${req.user.name || "A user"} raised a ticket: ${subject}`,
+      referenceId: ticket._id.toString(),
     });
 
     res.status(201).json({ success: true, data: ticket });
@@ -60,6 +81,24 @@ export const addReply = async (req, res) => {
     ticket.replies.push({ senderId: req.user._id, senderRole: req.user.role, message, attachment });
     if (ticket.status === "open") ticket.status = "in_progress";
     await ticket.save();
+
+    const preview = message.length > 80 ? `${message.substring(0, 80)}…` : message;
+    if (req.user.role === "admin") {
+      await createNotification({
+        userId: ticket.userId,
+        title: "Support Team Replied",
+        message: `Ticket ${ticket.ticketNumber}: ${preview}`,
+        type: "new_message",
+        referenceId: ticket._id.toString(),
+        referenceModel: "SupportTicket",
+      });
+    } else {
+      await notifyAdmins({
+        title: "New Reply on Ticket",
+        message: `${req.user.name || "User"} replied on ${ticket.ticketNumber}: ${preview}`,
+        referenceId: ticket._id.toString(),
+      });
+    }
 
     res.json({ success: true, data: ticket });
   } catch (err) {
@@ -121,10 +160,11 @@ export const updateTicket = async (req, res) => {
     if (ticket && status) {
       await createNotification({
         userId: ticket.userId._id,
-        title: `Ticket ${status}`,
-        message: `Your support ticket ${ticket.ticketNumber} has been marked as ${status}.`,
-        type: "low_stock",
+        title: `Ticket ${status.replace("_", " ")}`,
+        message: `Your support ticket ${ticket.ticketNumber} has been marked as ${status.replace("_", " ")}.`,
+        type: "new_message",
         referenceId: ticket._id.toString(),
+        referenceModel: "SupportTicket",
       });
     }
 
